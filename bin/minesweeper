@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'minesweeper_game'
+MinesweeperGame.new().console_play()

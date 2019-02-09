@@ -1,0 +1,85 @@
+Esta é a próxima etapa técnica que comentei com você. Nesta fase, você vai desenvolver um miniprojeto em Ruby.
+O objetivo é avaliarmos não só como você aprende uma linguagem nova, mas também avaliar suas decisões de arquitetura,
+desempenho e escalabilidade da solução, aplicações de melhores práticas no código e a corretude da implementação.
+
+Sinta-se à vontade para alterar quaisquer requisitos apresentados, desde que explique por que a alteração é uma boa ideia,
+ou para estender as funcionalidades básicas pedidas. O código que você produzir aqui vai ser usado como base na última
+etapa técnica, o pair programming com um engenheiro do nosso time.
+
+Por favor, deixe indicado quanto tempo levou pra fazer o exercício.
+Você pode googlar questões de sintaxe e biblioteca padrão do Ruby, só não pode googlar nenhum algoritmo ou solução do
+problema. Se houver qualquer dúvida, por favor me mande um email. Esperamos a sua solução até o final da terça (18/04).
+
+1. No início do jogo, a engine deve aceitar parâmetros de altura, largura e número de bombas no tabuleiro.
+   As bombas devem ser distribuídas aleatoriamente, de forma que todas as combinações de posições possíveis tenham
+   a mesma probabilidade de acontecer.
+
+2. Sua engine deve expor um conjunto mínimo de métodos para o cliente:
+
+  - play: recebe as coordenadas x e y do tabuleiro e clica na célula correspondente; a célula passa a ser "descoberta".
+          Deve retornar um booleano informando se a jogada foi válida. A jogada é válida somente se a célula selecionada
+          ainda não foi clicada e ainda não tem uma bandeira. Caso a célula clicada seja válida, não tenha uma bomba e
+          seja vizinha de zero bombas, todos os vizinhos sem bomba e sem bandeira daquela célula também devem ser
+          descobertas e devem seguir esta mesma lógica para seus próprios vizinhos (esse é o comportamento de expansão
+          quando clicamos em uma grande área sem bombas no jogo de campo minado).
+
+  - flag: adiciona uma bandeira a uma célula ainda não clicada ou remove a bandeira preexistente de uma célula.
+          Retorna um booleano informando se a jogada foi válida.
+
+  - still_playing?: retorna true se o jogo ainda está em andamento, ou false se o jogador tiver alcançado a condição de
+                    vitória (todas as células sem bomba foram descobertas) ou de derrota (jogador clicou em uma célula
+                    sem bandeira e ela tinha uma bomba).
+
+  - victory?: retorna true somente se o jogo já acabou e o jogador ganhou.
+
+  - board_state: retorna uma representação atual do tabuleiro, indicando quais células ainda não foram descobertas, se
+                 alguma foi descoberta e tem uma bomba, quais foram descobertas e têm células com bombas como vizinhas
+                 (indicar quantas são as vizinhas minadas), quais não estão descobertas e com bandeira.
+                 Se o cliente passar o hash {xray: true} como parâmetro, deve indicar a localização de todas as bombas,
+                 mas somente se o jogo estiver terminado.
+
+
+3. Uma célula descoberta deve saber informar o número de bombas adjacentes a ela, se houver alguma (entre 1 e 8). Se
+    não tiver bombas adjacentes, deve ser considerada uma célula descoberta e vazia.
+
+4. Crie pelo menos dois tipos de objeto "printer" que mostrem no terminal o estado do tabuleiro. Esses printers servem
+    como exemplo de como um cliente pode consumir o método "board_state" da sua engine. Por exemplo, um deles pode
+    simplesmente imprimir uma matriz mapeando os estados para caracteres segundo a especificação:
+
+board_format = {
+  unknown_cell: '.',
+  clear_cell: ' ',
+  bomb: '#',
+  flag: 'F'
+}
+5. Ao efetuar uma jogada em uma bomba (sem bandeira), o jogo deve terminar e nenhuma outra jogada
+    subsequente deve ser considerada válida.
+
+6. Demonstre, da maneira que achar melhor, que o seu projeto funciona como especificado.
+
+===
+
+Pequeno exemplo de uso da engine por um cliente:
+
+width, height, num_mines = 10, 20, 50
+game = Minesweeper.new(width, height, num_mines)
+
+while game.still_playing?
+  valid_move = game.play(rand(width), rand(height))
+  valid_flag = game.flag(rand(width), rand(height))
+  if valid_move or valid_flag
+  printer = (rand > 0.5) ? SimplePrinter.new : PrettyPrinter.new
+  printer.print(game.board_state)
+  end
+end
+
+puts "Fim do jogo!"
+if game.victory?
+  puts "Você venceu!"
+else
+  puts "Você perdeu! As minas eram:"
+  PrettyPrinter.new.print(game.board_state(xray: true))
+end
+
+
+#teamQuero
